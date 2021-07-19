@@ -1,0 +1,303 @@
+==========================================================================================
+Scripts for initialization
+==========================================================================================
+
+
+CREATE KEYSPACE instagram
+    WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
+
+==========================================================================================
+Script to create User Table
+==========================================================================================
+
+create table user (
+language text,
+createdAT timestamp,
+email text,
+phoneNo text,
+username text,
+password text,
+dob text,
+gender text,
+tokenVersion boolean,
+blockedUsers list<text>,
+savedPosts list<uuid>,
+followers list<text>,
+following list<text>,
+accountType boolean,
+accountType2 map<text,boolean>,
+requests list<text>,
+taggedIn list<uuid>,
+liked list<uuid>,
+account boolean,
+verified boolean,
+blockUserFromComment list<text>,
+allowReplyReaction map<text,boolean>,
+manuallyApproveTags boolean,
+toConfirmTag list<uuid>,
+allowTagsFrom map<text,boolean>,
+likeViewCount boolean,
+allowCommentFrom map<text,boolean>,
+checkComment boolean,
+offensiveWords list<text>,
+hideStory list<text>,
+allowAtMention map<text,boolean>,
+closeFriends list<text>,
+allowToShareOnStory boolean,
+muteStories list<text>,
+mutePosts list<text>,
+isMentionedIn list<uuid>,
+storyArchive boolean,
+liveArchive boolean,
+restrictAccounts list<text>,
+profilePicture text,
+fullName text,
+bio text,
+website text,
+blockedFrom list<text>,
+hideFromProfileGrid list<uuid>,
+posts list<uuid>,
+stories list<uuid>,
+recentStory list<uuid>,
+searchHistory list<text>,
+hashtags list<text>,
+countdown list<timeuuid>,
+primary key (email)
+);
+
+create index username on user(username);
+
+create index phoneNo on user(phoneNo);
+==========================================================================================
+Script to create Post Table
+==========================================================================================
+
+create table post(
+p_id uuid,
+u_id text,
+createdAt timestamp,
+modifiedAt timestamp,
+caption text,
+location text,
+tagged map<text,boolean>,
+type text,
+likedBy list<text>,
+hashTags list<text>,
+deleted boolean,
+commenting boolean,
+archived boolean,
+count boolean,
+title text,
+content list<text>,
+music text,
+disabled boolean,
+primary key (p_id)
+);
+
+create index location on post(location);
+create index u_idPost ON post(u_id) ;
+create index typePost on post(type);
+==========================================================================================
+Script to create Comment Table
+==========================================================================================
+
+create table comment (
+p_id uuid,
+u_id text,
+likedBy list<text>,
+createdAt timestamp,
+rComment boolean,
+comment_id uuid,
+commentText text,
+owner_id text,
+disabled boolean,
+bComment boolean,
+primary key (comment_id)
+);
+
+create index u_idComment on comment(u_id);
+
+create index p_idComment on comment(p_id);
+
+==========================================================================================
+Script to create Story Table
+==========================================================================================
+
+create table story(
+s_id uuid,
+viewedBy list<text>,
+createdAt timestamp,
+viewType text,
+u_id text, 
+mention list<text>,
+location text,
+archived boolean,
+music text,
+link text,
+content text,
+deleted boolean,
+disabled boolean,
+PollsResponses map<text,boolean>,
+QuestionsResponses map<text,text>,
+EmojiSliderResponses map<text,int>,
+QuizResponses map<text,text>,
+poll list<text>,
+question text,
+eslider text,
+quizContent list<text>,
+primary key (s_id)
+);
+
+==========================================================================================
+Script to create Logs Table
+==========================================================================================
+
+create table logs( 
+u_id text, 
+createdAt timestamp, 
+value text,  
+activityRelated boolean,
+type text, 
+primary key (type,createdAt,u_id,activityRelated)
+) with clustering order by ( createdAt desc);
+
+==========================================================================================
+Script to create Collection Table
+==========================================================================================
+
+create table collection (
+id uuid,
+email text,
+collectionName text, 
+p_id list<uuid> ,
+type text, 
+primary key (email)
+);
+
+==========================================================================================
+Script to create Notification Table
+==========================================================================================
+
+create table manageNotification (
+email text, 
+posts list<text>, 
+stories list <text>, 
+igtv list<text>, 
+reels list<text>, 
+liveVideos list<text>, 
+primary key (email)
+);
+
+==========================================================================================
+Script to create Posts' Statistics Table
+==========================================================================================
+
+create table PostStats (
+p_id uuid, 
+likes counter, 
+savedCount counter,
+sharedCount counter,
+profilevisits counter, 
+follows counter, 
+impressions counter, 
+primary key(p_id)
+);
+
+==========================================================================================
+Script to create Storys' Statistics Table
+==========================================================================================
+
+create table StoryStats(
+s_id uuid, 
+sharedCount counter, 
+profileVisits counter, 
+impressions counter, 
+follows counter, 
+forward counter, 
+exitted counter,
+next counter, 
+primary key (s_id)
+);
+
+==========================================================================================
+Script to create Comments' Statistics Table
+==========================================================================================
+
+create table commentlikes(
+comment_id uuid, 
+likes counter, 
+primary key (comment_id)
+);
+
+==========================================================================================
+Script to create Users' Statistics Table
+==========================================================================================
+
+create table userCount(
+email text, 
+postCount counter, 
+StoryCount counter, 
+commentCount counter, 
+primary key (email)
+);
+
+==========================================================================================
+Script to create Hashtags table
+==========================================================================================
+
+create table HashTag (
+hashtag text,
+p_id list<uuid>,
+primary key (hashtag)
+);
+
+==========================================================================================
+Script to create Request Verification table
+==========================================================================================
+
+create table requestForVerification (
+id uuid,
+u_id text,
+fullname text,
+knownAs text,
+category text,
+image text,
+status text,
+primary key (id)
+);
+
+==========================================================================================
+Script to create Live Video table
+==========================================================================================
+
+create table liveVideos(
+id uuid,
+video text,
+createdAt timestamp,
+u_id text,
+primary key(id)
+);
+
+==========================================================================================
+Script to create Delete Account table
+==========================================================================================
+
+create table deleteAccount(
+u_id text,
+primary key (u_id)
+);
+
+==========================================================================================
+Script to create Report Log table
+==========================================================================================
+create table reportLog (
+id uuid,
+type text,
+category text,
+object_id text,	
+primary key (id,category)
+);
+create index type on reportlog(type);
+
+==========================================================================================
+==========================================================================================
