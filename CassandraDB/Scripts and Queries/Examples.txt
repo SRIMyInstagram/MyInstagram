@@ -1,0 +1,290 @@
+Insert Post:
+BEGIN BATCH
+insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values (78f738f6-e5a1-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),toTimestamp(now()),'test caption 5', 'test location 5', {'email1':true,'email2' : true} ,'Post',['#hashtag1','#hashtag2'],false,true,false,true,'test title 5',now(),false);
+update user set posts = posts + [78f738f6-e5a1-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+
+BEGIN BATCH
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),'<<Type of story view to All/Closefriends>>',['@username1','@username2','',...],'<<your location>>',false,'<<name of music>>','<<link of product>>',false,false,['<<question for poll>>','<<first option>>','<<second option>>'],'<<question you want to ask>>','<<text for Emoji slider>>',['<<question for quiz>>','<<option 1>>','<<option 2>>',...]);
+update user set stories = stories + [<<uuid generated from site>>] where email = '<<your email>>';
+APPLY BATCH;
+
+BEGIN BATCH
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (14ff993c-e63d-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'All',[],'Winterfell',true,'GOT theme','',false,false,[],'Ask me anything about Winterfell ?','how much Cersi Lanister enjoyed in Winterfell ?',[]);
+update user set stories = stories + [14ff993c-e63d-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+
+Insert Post:
+insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),toTimestamp(now()),'<<your caption>>', '<<your location>>', {'email1':true,'email2' : true} ,'Post',['<<list of hashtags>>'],false,true,false,true,'<<your title>>',now(),false);
+
+Insert Comment:
+insert into comment (p_id,u_id,createdat,rComment,comment_id,commentText,owner_id,disabled,bComment) values (78f738f6-e5a1-11eb-ba80-0242ac130004
+, 'eleven11@netflix.com',toTimestamp(now()),false,now(),'Hi Mike your post is amazing','michealcollins@gmail.com',false,false);
+
+Send request for Verification:
+insert into requestForVerification (id,u_id,fullname,knownas,category,image,status) values (now(),'michealcollins@gmail.com','Micheal Bruce Collins','Mike',
+'Actor','www.greencardofUS.com','requested');
+
+Like/Unlike Post/Comment:
+
+BEGIN BATCH
+update post set likedBy = likedBy + ['eleven11@netflix.com'],modifiedat = toTimestamp(now()) where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+update user set liked = liked + [78f738f6-e5a1-11eb-ba80-0242ac130004] where email = 'eleven11@netflix.com';
+insert into logs (u_id,createdat,value,activityrelated,type) values ('eleven11@netflix.com',toTimestamp(now()),'78f738f6-e5a1-11eb-ba80-0242ac130004',true,'post');
+APPLY BATCH;
+update PostStats set likes = likes +1 where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+
+BEGIN BATCH
+update comment set likedBy = likedBy + ['eleven11@netflix.com'] where comment_id = cae37770-e627-11eb-86e6-4ff50b69c2d0;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('eleven11@netflix.com',toTimestamp(now()),'cae37770-e627-11eb-86e6-4ff50b69c2d0',true,'comment');
+APPLY BATCH;
+update Commentlikes set likes = likes + 1 where comment_id = cae37770-e627-11eb-86e6-4ff50b69c2d0;
+
+BEGIN BATCH
+update comment set likedBy = likedBy - ['eleven11@netflix.com'] where comment_id = cae37770-e627-11eb-86e6-4ff50b69c2d0;
+APPLY BATCH;
+update commentlikes set likes = likes - 1 where comment_id = cae37770-e627-11eb-86e6-4ff50b69c2d0;
+
+Block Profile: User1 blocks User2's profile:
+
+BEGIN BATCH
+update user set blockedusers = blockedusers + ['eleven11@netflix.com'] where email = 'shatya0910@gmail.com';
+update user set blockedfrom = blockedfrom + ['shatya0910@gmail.com'] where email = 'eleven11@netflix.com';
+update user set following = following - ['eleven11@netflix.com'] where email = 'shatya0910@gmail.com';
+update user set followers = followers - ['eleven11@netflix.com'] where email = 'shatya0910@gmail.com';
+update user set following = following - ['shatya0910@gmail.com'] where email = 'eleven11@netflix.com';
+update user set followers = followers - ['shatya0910@gmail.com'] where email = 'eleven11@netflix.com';
+APPLY BATCH;
+
+BEGIN BATCH
+update user set blockedusers = blockedusers - ['eleven11@netflix.com'] where email = 'shatya0910@gmail.com';
+update user set blockedfrom = blockedfrom - ['shatya0910@gmail.com'] where email = 'eleven11@netflix.com';
+APPLY BATCH;
+
+Save/Unsave Post:
+
+BEGIN BATCH
+update user set savedPosts = savedPosts + [78f738f6-e5a1-11eb-ba80-0242ac130004]  where email = 'eleven11@netflix.com';
+APPLY BATCH;
+update PostStats set savedCount = savedCount + 1 where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+
+BEGIN BATCH
+update user set savedPosts = savedPosts - [78f738f6-e5a1-11eb-ba80-0242ac130004]  where email = 'eleven11@netflix.com';
+APPLY BATCH;
+update PostStats set savedCount = savedCount - 1 where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+
+
+Follow/Unfollow Profile: User 1 follows/unfollows user 2
+
+BEGIN BATCH
+update user set following = following + ['eleven11@netflix.com'] where email = 'shatya0910@gmail.com';
+update user set followers = followers + ['shatya0910@gmail.com'] where email = 'eleven11@netflix.com';
+APPLY BATCH;
+
+update user set requests = requests + ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+
+--To Archive execute following:
+BEGIN BATCH
+update post set archived = true,modifiedat = toTimestamp(now()) where p_id = e7f39010-e59c-11eb-86e6-4ff50b69c2d0;
+APPLY BATCH;
+update userCount set postCount = postCount - 1 where email = 'michealcollins@gmail.com';
+
+BEGIN BATCH
+update post set archived = false,modifiedat = toTimestamp(now()) where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+APPLY BATCH;
+update userCount set postCount = postCount + 1 where email = 'michealcollins@gmail.com';
+
+BEGIN BATCH
+update user set password = 'shelltrial' where email = 'michealcollins@gmail.com';
+insert into logs (u_id,createdat,value,type,activityrelated) values ('michealcollins@gmail.com',toTimestamp(now()),'password','password',false);
+APPLY BATCH;
+
+update post set commenting = false,modifiedat = toTimestamp(now()) where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+
+--To Change Visibility to Private
+BEGIN BATCH
+update user set accounttype = false where email = 'michealcollins@gmail.com';
+insert into logs (u_id,createdat,value,type,activityrelated) values ('michealcollins@gmail.com',toTimestamp(now()),'Private','privacy',false);
+APPLY BATCH;
+
+
+BEGIN BATCH
+update user set accounttype = true where email = 'sanketjain123@gmail.com';
+insert into logs (u_id,createdat,value,type,activityrelated) values ('sanketjain123@gmail.com',toTimestamp(now()),'Public','privacy',false);
+APPLY BATCH;
+
+Delete Post/Story:
+
+select posts from user where email = 'michealcollins@gmail.com';
+BEGIN BATCH
+update post set deleted = true, modifiedat = toTimestamp(now()) where p_id = faed80e0-e59c-11eb-86e6-4ff50b69c2d0;
+update user set posts = posts - [faed80e0-e59c-11eb-86e6-4ff50b69c2d0] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+update userCount set postCount = postCount - 1 where email = 'michealcollins@gmail.com';
+
+
+select savedPosts from user where email = 'eleven11@netflix.com';
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (78f738f6-e5a1-11eb-ba80-0242ac130004) AND type = 'Post' AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+select taggedIn from user where email = 'eleven11@netflix.com';
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (78f738f6-e5a1-11eb-ba80-0242ac130004,d05ce5a0-e59c-11eb-86e6-4ff50b69c2d0) AND type = 'Post'
+AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+select liked from user where email = 'eleven11@netflix.com';
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (78f738f6-e5a1-11eb-ba80-0242ac130004) AND type = 'Post'
+AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+
+View posts/stories I’ve archived:
+
+
+select posts from user where email = 'michealcollins@gmail.com';
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (d05ce5a0-e59c-11eb-86e6-4ff50b69c2d0, e7f39010-e59c-11eb-86e6-4ff50b69c2d0, 78f738f6-e5a1-11eb-ba80-0242ac130004) AND type = 'Post' AND deleted = false AND archived = true AND disabled = false ALLOW FILTERING;
+
+select stories from user where email = 'michealcollins@gmail.com';
+select s_id,u_id,createdat,viewedby,viewtype,mention,location,music,link,content,pollsResponses,questionsResponses,emojisliderResponses,quizResponses,poll,
+question,eslider,quizContent from story where s_id in(01acd190-e612-11eb-ba80-0242ac130004, 14ff993c-e63d-11eb-ba80-0242ac130004) AND archived = true AND deleted = false AND disabled = false ALLOW FILTERING;
+
+View activity related to my account:
+select * from logs where type in ('tagged','mentioned','pending','comment') and u_id = 'eleven11@netflix.com' and activityrelated = true  ALLOW FILTERING ;
+
+Login Activity Log:
+select * from logs where type = 'login' and u_id = 'michealcollins@gmail.com' and activityrelated = false  ALLOW FILTERING ;
+
+Switch to Professional Account:
+update user set accounttype=true , accounttype2['Business'] = false, accounttype2['Normal'] = false,accounttype2['Professional'] = true where email = 'sanketjain123@gmail.com';
+
+select requests from user where email = 'sanketjain123@gmail.com';
+
+BEGIN BATCH
+update user set requests = requests - ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+update user set following = following + ['sanketjain123@gmail.com'] where email = 'shatya0910@gmail.com';
+update user set followers = followers + ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+APPLY BATCH;
+
+Story Archive (Location):
+
+select stories from user where email = 'michealcollins@gmail.com';
+select s_id,u_id,createdat,viewedby,viewtype,mention,location,music,link,content,pollsResponses,questionsResponses,emojisliderResponses,quizResponses,poll,
+question,eslider,quizContent from story where s_id in(01acd190-e612-11eb-ba80-0242ac130004, 14ff993c-e63d-11eb-ba80-0242ac130004) AND archived = true AND deleted = false AND disabled = false AND location = 'Winterfell' ALLOW FILTERING;
+
+View Entire History of Account:
+select * from logs where u_id = 'michealcollins@gmail.com' and activityrelated = false order by createdat ALLOW FILTERING ;
+
+Comments’ features:
+
+--To block a particular user from commenting
+update user set blockuserfromcomment = blockuserfromcomment + ['shatya0910@gmail.com'] where email = 'michealcollins@gmail.com';
+
+--To check for offensive words in comment
+update user set checkcomment = true where email = 'michealcollins@gmail.com';
+
+-- To add custom offensive filtering words to check
+update user set offensivewords = offensivewords + ['hell','dumb'] where email = 'michealcollins@gmail.com';
+
+--To update who can comment on Post 
+update user set allowCommentFrom['everyone'] = false ,allowCommentFrom ['followers'] = false, allowCommentFrom['following'] = false, allowCommentFrom['followingFollowers'] = True where emai = 'michealcollins@gmail.com';
+
+View and manage Search History:
+
+update user set searchHistory = searchHistory + ['TEST 1','search content 1','#verify','test location'] where email = 'michealcollins@gmail.com';
+
+select searchHistory from user where email = 'michealcollins@gmail.com';
+
+update user set searchHistory = searchHistory - ['TEST 1'] where email = 'michealcollins@gmail.com';
+
+View and manage Recently Deleted Posts:
+
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where u_id = 'michealcollins@gmail.com' AND type = 'Post'
+AND deleted = true AND archived = false AND disabled = false ALLOW FILTERING;
+
+--To restore deleted post
+BEGIN BATCH
+update post set deleted = false where p_id = faed80e0-e59c-11eb-86e6-4ff50b69c2d0;
+update user set posts = posts + [faed80e0-e59c-11eb-86e6-4ff50b69c2d0] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+
+Edit Posts:
+update post set caption = 'Update caption test', tagged= tagged + {'sanketjain123@gmail.com' : true}, location = 'Kings Landing',
+hashtags = hashtags + ['#GOT'], modifiedat = toTimestamp(now()) where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
+
+Remove Follower: User1 removes User2
+
+BEGIN BATCH
+update user set following = following - ['sanketjain123@gmail.com'] where email = 'shatya0910@gmail.com';
+update user set followers = followers - ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+APPLY BATCH;
+
+Hide/Unhide Like and View Counts:
+update user set likeviewcount = false where email = 'michealcollins@gmail.com';
+
+Allow tags from:
+
+update user set allowtagsfrom['All'] = false , allowtagsfrom['following'] = false , allowtagsfrom['none'] = true where email = 'michealcollins@gmail.com';
+
+Hide story from particular user(s): User1 hides from User2:
+
+update user set hidestory = hidestory + ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+
+Remove Tag: User1 removes tag from User2’s post:
+select taggedIn from user where email = 'eleven11@netflix.com';
+
+BEGIN BATCH
+update user set taggedIn = taggedIn - [d05ce5a0-e59c-11eb-86e6-4ff50b69c2d0] where email = 'eleven11@netflix.com';
+update post set tagged = tagged - {'eleven11@gmail.com'} where  p_id = d05ce5a0-e59c-11eb-86e6-4ff50b69c2d0;
+APPLY BATCH;
+
+Allow @Mentions From:
+update user set allowatmention['All'] = false, allowatmention['none'] = true, allowatmention['following'] = false  where email = 'sanketjain123@gmail.com';
+
+Check Allow @Mentions From:
+select allowatmention from user where email = 'sanketjain123@gmail.com';
+
+Close Friends: User1 adds/removes User2 to close friends
+
+update user set closefriends = closefriends + ['michealcollins@gmail.com'] where email = 'eleven11@netflix.com';
+
+Allow Replies and Reactions on stories:
+
+update user set allowreplyreaction['All'] = false, allowreplyreaction['following'] = false, allowreplyreaction['none'] = true where email = 'sanketjain123@gmail.com';
+
+
+Manage Notifications:
+update manageNotification set stories = stories + ['eleven11@netflix.com'] where email = 'michealcollins@gmail.com';
+
+update user set muteStories = muteStories + ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+
+update user set mutePosts = mutePosts + ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+
+Add a story(old/current) to highlights:
+select stories from user where email = 'michealcollins@gmail.com';
+insert into collection (id,email,collectionname,p_id,type) values (now(),'michealcollins@gmail.com','Test Collection',[01acd190-e612-11eb-ba80-0242ac130004, 14ff993c-e63d-11eb-ba80-0242ac130004],'highlights');
+
+Restrict/Unrestrict Account: User1 restricts/unrestricts User2
+
+update user set  restrictAccounts = restrictAccounts + ['shatya0910@gmail.com'] where email = 'sanketjain123@gmail.com';
+
+Polls : 
+BEGIN BATCH
+update story set pollsResponses = pollsResponses + {'eleven11@netflix.com': true} where s_id = 447a8186-e610-11eb-ba80-0242ac130004;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('eleven11@netflix.com',toTimestamp(now()),'poll',false,'story');
+APPLY BATCH;
+
+Questions : 
+BEGIN BATCH
+update story set questionsResponses = questionsResponses + {'eleven11@netflix.com': 'How do you felt at the start of season 3 ?'} where s_id = 01acd190-e612-11eb-ba80-0242ac130004;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('eleven11@netflix.com',toTimestamp(now()),'question',false,'story');
+APPLY BATCH;
+
+Emoji Slider:
+BEGIN BATCH
+update story set EmojiSliderResponses = EmojiSliderResponses + {'eleven11@netflix.com': 90} where s_id = 01acd190-e612-11eb-ba80-0242ac130004;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('eleven11@netflix.com',toTimestamp(now()),'emoji',false,'story');
+APPLY BATCH;
+
+Quiz : 
+
+BEGIN BATCH
+update story set quizResponses = quizResponses + {'eleven11@gmail.com':'Millie Bobby Brown'} where s_id = 447a8186-e610-11eb-ba80-0242ac130004;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('eleven11@gmail.com',toTimestamp(now()),'quiz',false,'story');
+APPLY BATCH;

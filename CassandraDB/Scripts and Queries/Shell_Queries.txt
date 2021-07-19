@@ -1,0 +1,770 @@
+*Note : Replace the entire string between single quotes
+Example: select username from user where username = '<<your username>>' ==> select username from user where username = 'johnWalker';
+Here incase if you don't want to give that information you can just pass empty string like this ==> ''
+Also in case of arrays you can pass empty array like this : [] or in case of map empty map like this : {}
+ 
+
+Insert into user table:
+--> Replace <<your username>>, .... and other such <<>> with your values
+
+insert into user (username,email,phoneNo,password,dob,fullname,createdAT,language,gender,accountType,accountType2,account,verified,allowReplyReaction,manuallyApproveTags,
+allowTagsFrom,likeViewCount,allowCommentFrom,checkComment,allowAtMention,allowToShareOnStory,storyArchive,liveArchive) values ('<<your username>>',
+'<<your email>>','<<your phone No.>>','<<your password>>','<<your dob>>','<<your fullname>>',toTimestamp(now()),'en-us','<<your gender>>',true, 
+{'Normal': true, 'Business' : false , 'Professional' : false}, true, false, {'All':true, 'none': false, 'following':false}, false, 
+{'All':true, 'none': false, 'following':false}, true, {'everyone' : true,'following': true, 'followers':true,'followingFollowers' : true}, false, 
+{ 'All':true, 'none':false, 'following': false }, true, true, true);
+
+
+Insert Post:
+--> To insert a post/reel/igtv first goto : https://www.uuidgenerator.net/ and increament counter to 1 and click on generate, a uuid of type 1, 
+it should look like this ex : 71bd70c0-e59f-11eb-ba80-0242ac130004
+--> Now in place of pid use this uuid to insert post
+--> Also note that for all hashtags and tagged user's email you have to run following queries:
+        update user set taggedIn = taggedIn + [<<uuid generated from site>>] where email = '<<user1 email>>';
+    You need to run above query for all tagged emails so, if you tag 3 emails email1,email2,email3 then, you should execute above query 3 times with <<user1 email>> = email1,email2,email3
+        select hashtag from hashtag where hashtag in ('<<list of hashtag seperated by comma>>') ;
+    So, if above query returns any row for any hashtag then you need to run below query for all returned hashtag
+        update hashtag set p_id = p_id + [<<uuid generated from site>>] where hashtag = '<<value of hashtag>>';
+    if from select query any row is not returned then execute following query for all hashtag in the post and also for the hashTags excluding which are used in above query
+        insert into hashtag (hashtag,p_id) values ('<<your hashtag>>',[<<uuid generated from site>>]);
+    
+BEGIN BATCH
+insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values 
+(<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),toTimestamp(now()),'<<your caption>>', '<<your location>>', {'email1':true,'email2' : true} ,
+'<<your type of content Post/IGTv/REELS>>',['<<list of hashtags>>'],false,true,false,true,'<<your title>>',now(),false);
+update user set posts = posts + [<<pid that you generated>>] where email = '<<your email>>'
+APPLY BATCH;
+update userCount set postCount = postCount + 1 where email = '<<your email>>';
+
+For Example:
+BEGIN BATCH
+insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values (78f738f6-e5a1-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),toTimestamp(now()),'test caption 5', 'test location 5', {'email1':true,'email2' : true} ,'Post',['#hashtag1','#hashtag2'],false,true,false,true,'test title 5',now(),false);
+update user set posts = posts + [78f738f6-e5a1-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+
+
+Insert Story:
+--> To insert a story first goto : https://www.uuidgenerator.net/ and increament counter to 1 and click on generate, a uuid of type 1, 
+it should look like this ex : 71bd70c0-e59f-11eb-ba80-0242ac130004
+--> Now in place of sid use this uuid to insert story
+
+BEGIN BATCH
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),'<<Type of story view to All/Closefriends>>',['@username1','@username2','',...],'<<your location>>',false,'<<name of music>>','<<link of product>>',false,false,['<<question for poll>>','<<first option>>','<<second option>>'],'<<question you want to ask>>','<<text for Emoji slider>>',['<<question for quiz>>','<<option 1>>','<<option 2>>',...]);
+update user set stories = stories + [<<uuid generated from site>>] where email = '<<your email>>';
+update user using ttl 86400 set recentstory = recentstory + [<<uuid generated from site>>] where email = '<<your email>>';
+APPLY BATCH;
+
+For Example:
+I) BEGIN BATCH
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (01acd190-e612-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'CloseFriends',[],'Winterfell',false,'GOT theme','',false,false,[],'Ask me anything about Winterfell ?','how much Cersi Lanister enjoyed in Winterfell ?',[]);
+update user set stories = stories + [01acd190-e612-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+update user using ttl 86400 set recentstory = recentstory + [01acd190-e612-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+
+II) BEGIN BATCH
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (447a8186-e610-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'All',['@mike#123','millie.B.brown'],'Test location',false,'Play Date','',false,false,['Do you like Stranger things ?','YES','NO'],'','',['What is real name of Eleven','Kristen Stewart','Emelia Clark','Millie Bobby Brown','Naomi Scott']);
+update user set stories = stories + [447a8186-e610-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+update user using ttl 86400 set recentstory = recentstory + [447a8186-e610-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
+APPLY BATCH;
+
+Insert into comment table:
+*Note : Since we are executing each command from shell. we can't check if user inserting comment for a post is blocked by owner of post. If user is blocked then we need to pass the boolean of bComment as true
+--> Also we need to check for offensive words in the comment text if checkComment is true for the owner of post,but in case of shell we can't do that.
+--> Replace <<your email>>, .... and other such <<>> with your values
+
+insert into comment (p_id,u_id,createdat,rComment,comment_id,commentText,owner_id,disabled,bComment) values (<<pid of post you are commenting>>, '<<your email>>',
+toTimestamp(now()),false,now(),'<<enter your comment here>>','<<email of person who posted this post>>',false,false);
+
+
+Send request for Verification:
+--> To verify your account
+--> Replace <<your email>>, .... and other such <<>> with your values
+insert into requestForVerification (id,u_id,fullname,knownas,category,image,status) values (now(),'<<your email>>','<<your fullname>>','<<your public name>>',
+'<<category of work you do>>','<<link of the image of govt id>>','requested');
+
+Login Query:
+select * from user where email = '<<your email>>' AND password = '<<your password>>';
+
+Example: select json * from user where email = 'michealcollins@gmail.com' AND password = 'shelltrial' ALLOW FILTERING;
+
+--> Here if no rows are returned then either your email is wrong or password or both or you need to insert that user first
+--> After executing above query you have to execute below query:
+insert into logs (type,value,u_id,activityrelated,createdat) values ('Login','','<<your email>>',false,toTimestamp(now()));
+
+
+Update Profile
+--> if you want to update username or phoneNo run following queries and if they both return 0 rows execute update query
+--> if by executing below two queries results in 1 row use differnet username and phonNo not in database
+--> Keep only those columns that you want to update
+--> Also run query II query for each updated columns
+        Example : Suppose you update username,website and bio for mike123@gmail.com then you need to execute following two queries
+        First execute this: update user set username = 'tonyStark3000',website = 'www.starkindustries.us',bio = 'Best Avenger' where email = 'mike123@gmail.com';  
+        Than this:
+            insert into logs (u_id,createdat,value,activityrelated,type) values ('mike123@gmail.com',toTimestamp(now()),'tonyStark3000',false,'username');
+            insert into logs (u_id,createdat,value,activityrelated,type) values ('mike123@gmail.com',toTimestamp(now()),'www.starkindustries.us',false,'website');
+            insert into logs (u_id,createdat,value,activityrelated,type) values ('mike123@gmail.com',toTimestamp(now()),'Best Avenger',false,'bio');
+
+select username from user where username = '<<your username>>';
+
+select phoneNo from user where phoneNo = '<<your phone Number>>';
+
+--> Also you can remove the fields that you don't want to update
+update:
+I) update user set username = '<<new value>>',phoneNo = '<<new value>>',fullname = '<<new value>>',website = '<<new value>>',bio = '<<new value>>',dob = '<<new value>>', gender = '<<new value>>' where email = '<<email of account you want change>>';  
+
+
+II) insert into logs (u_id,createdat,value,activityrelated,type) values ('<<email of account>>',toTimestamp(now()),'<<Updated value for the column>>',false,'<<Name of column you updated>>');
+
+
+Like/Unlike Post/Comment:
+--To Like
+--> Choose p_id/comment_id and email of a account
+For Post execute following:
+
+BEGIN BATCH
+update post set likedBy = likedBy + ['<<Enter your email>>'],modifiedat = toTimestamp(now()) where p_id = <<Enter your p_id>>;
+update user set liked = liked + [<<Enter your p_id>>] where email = '<<Enter your email>>';
+insert into logs (u_id,createdat,value,activityrelated,type) values ('<<Enter your email>>',toTimestamp(now()),'<<Enter your p_id>>',true,'post');
+APPLY BATCH;
+update PostStats set likes = likes +1 where p_id = <<Enter your p_id>>;
+
+For Comment execute following:
+BEGIN BATCH
+update comment set likedBy = likedBy + ['<<Enter your email>>'] where comment_id = <<Enter your comment_id>>;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('<<Enter your email>>',toTimestamp(now()),'<<Enter your comment_id>>',true,'comment');
+APPLY BATCH;
+update Commentlikes set likes = likes + 1 where comment_id = <<Enter your comment_id>>;
+
+
+--To Unlike
+--> Choose p_id/comment_id and email of a account
+For Post execute following:
+
+BEGIN BATCH
+update post set likedBy = likedBy - ['<<Enter your email>>'],modifiedat = toTimestamp(now()) where p_id = <<Enter your p_id>>;
+update user set liked = liked - [<<Enter your p_id>>] where email = '<<Enter your email>>';
+APPLY BATCH;
+update PostStats set likes = likes - 1 where p_id = <<Enter your p_id>>;
+
+For Comment execute following:
+
+BEGIN BATCH
+update comment set likedBy = likedBy - ['<<Enter your email>>'] where comment_id = <<Enter your comment_id>>;
+APPLY BATCH;
+update commentlikes set likes = likes - 1 where comment_id = <<Enter your comment_id>>;
+
+
+Block Profile: User1 blocks User2's profile
+--> Choose user1 and User2 email id's
+--To block Profile execute following:
+
+BEGIN BATCH
+update user set blockedusers = blockedusers + ['<<Enter user2's email>>'],following = following - ['<<Enter user2's email>>'],followers = followers - ['<<Enter user2's email>>'] where email = '<<Enter user1's email>>';
+update user set blockedfrom = blockedfrom + ['<<Enter user1's email>>'],following = following - ['<<Enter user1's email>>'],followers = followers - ['<<Enter user1's email>>'] where email = '<<Enter user2's email>>';
+APPLY BATCH;
+
+--To unblock Profile execute following:
+
+BEGIN BATCH
+update user set blockedusers = blockedusers - ['<<Enter user2's email>>'] where email = '<<Enter user1's email>>';
+update user set blockedfrom = blockedfrom - ['<<Enter user1's email>>'] where email = '<<Enter user2's email>>';
+APPLY BATCH;
+
+
+Save/Unsave Post:
+
+--> Choose a p_id and an accounts' email id
+--For Saving a Post execute following:
+
+BEGIN BATCH
+update user set savedPosts = savedPosts + [<<Enter your pid>>]  where email = '<<Enter user's email>>';
+APPLY BATCH;
+update PostStats set savedCount = savedCount + 1 where p_id = <<Enter your pid>> ;
+
+--For unsaving a Post execute following:
+
+BEGIN BATCH
+update user set savedPosts = savedPosts - [<<Enter your pid>>] where email = '<<Enter user's email>>';
+APPLY BATCH;
+update PostStats set savedCount = savedCount - 1 where p_id = <<Enter your pid>>;
+
+
+Follow/Unfollow Profile: User 1 follows/unfollows user 2
+--> First check for accounttype of user2's account if it's true execute I else II
+--> If (II) executed then user1 account is added to follow request and user2 can accept it (III) or decline it (IV)
+--To follow
+select accounttype from user where email = '<<Enter user2 email>>';
+I)
+BEGIN BATCH
+update user set following = following + ['<<Enter user2 email>>'] where email = '<<Enter user1 email>>';
+update user set followers = followers + ['<<Enter user1 email>>'] where email = '<<Enter user2 email>>';
+APPLY BATCH;
+
+II)
+update user set requests = requests + ['<<Enter user1 email>>'] where email = '<<Enter user2 email>>';
+--For accepting request:
+III)
+BEGIN BATCH
+update user set requests = requests - ['<<Enter user1 email>>'] where email = '<<Enter user2 email>>';
+update user set following = following + ['<<Enter user2 email>>'] where email = '<<Enter user1 email>>';
+update user set followers = followers + ['<<Enter user1 email>>'] where email = '<<Enter user2 email>>';
+APPLY BATCH;
+
+--For declining request
+IV)
+update user set requests = requests - ['<<Enter user1 email>>'] where email = '<<Enter user2 email>>';
+
+--To Unfollow
+BEGIN BATCH
+update user set following = following - ['<<Enter user2 email>>'] where email = '<<Enter user1 email>>';
+update user set followers = followers - ['<<Enter user2 email>>'] where email = '<<Enter user2 email>>';
+APPLY BATCH;
+
+Follow/Unfollow Hashtag:
+--> Choose an email of an account
+--> To follow a hashtag we need to check first if that hashtag exists
+--> If such hastag exists then execute follow query
+
+--To Check if hashtag exists:
+select hashtag from hashtag where hashtag = '<<hashtag you want to follow with #>>';
+--To follow
+update user set hashtags = hashtags + ['<<hashtag you want to follow with #>>'] where email = '<<email of account>>';
+
+--To unfollow
+update user set hashtags = hashtags - ['<<hashtag you want to follow with #>>'] where email = '<<email of account>>';
+
+
+Archive/Unarchive:
+--> Choose an email of an account
+--> Choose pid you want to Archive/Unarchive from selected email account
+
+--To Archive execute following:
+BEGIN BATCH
+update post set archived = true,modifiedat = toTimestamp(now()) where p_id = <<Enter your pid>>;
+APPLY BATCH;
+update userCount set postCount = postCount - 1 where email = '<<email of owner of post>>';
+
+--To Unarchive
+BEGIN BATCH
+update post set archived = false,modifiedat = toTimestamp(now()) where p_id = <<Enter your pid>>;
+APPLY BATCH;
+update userCount set postCount = postCount + 1 where email = '<<email of owner of post>';
+
+
+Change Password:
+--> Choose an email of an account
+
+BEGIN BATCH
+update user set password = '<<new password>>' where email = '<<email of account>>';
+insert into logs (u_id,createdat,value,type,activityrelated) values ('<<email of account>>',toTimestamp(now()),'password','password',false);
+APPLY BATCH;
+
+Turn Commenting ON/OFF 
+--> Choose pid you want to turn commenting ON/OFF 
+
+--To turn off commenting
+update post set commenting = false,modifiedat = toTimestamp(now()) where p_id = <<enter your pid>>;
+
+--To turn on commenting
+update post set commenting = true,modifiedat = toTimestamp(now()) where p_id = <<enter your pid>>;
+
+
+Change Profile Details Visibility:
+--> Choose an email of an account
+--To Change Visibility to Private
+BEGIN BATCH
+update user set accounttype = false where email = '<<email of account>>';
+insert into logs (u_id,createdat,value,type,activityrelated) values ('<<email of account>>',toTimestamp(now()),'Private','privacy',false);
+APPLY BATCH;
+
+
+--To Change Visibility to Public
+BEGIN BATCH
+update user set accounttype = true where email = '<<email of account>>';
+insert into logs (u_id,createdat,value,type,activityrelated) values ('<<email of account>>',toTimestamp(now()),'Public','privacy',false);
+APPLY BATCH;
+
+
+Delete Post/Story:
+--> Choose an email of an account
+--> Choose the pid of post you want to delete
+
+--To select pid for given account
+select posts from user where email = '<<email of account>>';
+--To delete post
+
+BEGIN BATCH
+update post set deleted = true, modifiedat = toTimestamp(now()) where p_id = <<selected pid>>;
+update user set posts = posts - [<<selected pid>>] where email = '<<email of account>>';
+APPLY BATCH;
+update userCount set postCount = postCount - 1 where email = '<<email of account>>';
+
+--To select sid for given account
+select stories from user where email = '<<email of account>>';
+
+--To delete story
+BEGIN BATCH
+update story set deleted = true, modifiedat = toTimestamp(now()) where s_id = <<selected sid>>;
+update user set stories = stories - [<<selected sid>>]  where email = '<<email of account>>';
+APPLY BATCH;
+update userPostCounter set storyCount = storyCount - 1 where email = '<<email of account>>';
+
+
+View Saved Posts:
+--> Choose an email of an account
+--> Copy all listed pid's 
+--> Paste all pid's seperated by comma in given space
+
+--To get list of saved Posts of an given account:
+select savedPosts from user where email = '<<email of account>>';
+
+--To view Posts: 
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (<<list of pid's each seperated by comma>>)  AND type = 'Post'
+AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+
+View post(s) a particular user or the user himself/herself is/are tagged in:
+--> Choose an email of an account
+--> Copy all listed pid's 
+--> Paste all pid's seperated by comma in given space
+
+--To get list of all pids
+select taggedIn from user where email = '<<email of account>>';
+
+--To view Posts: 
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (<<list of pid's each seperated by comma>>) AND type = 'Post'
+AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+
+View posts I’ve liked:
+--> Choose an email of an account
+--> Copy all listed pid's 
+--> Paste all pid's seperated by comma in given space
+
+--To get list of all liked posts:
+select liked from user where email = '<<email of account>>';
+
+--To view Posts: 
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (<<list of pid's each seperated by comma>>) AND type = 'Post'
+AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+
+View posts/stories I’ve archived:
+--> Choose an email of an account
+--> Copy all listed pid's/sid's 
+--> Paste all pid's/sid's seperated by comma in given space
+
+--To get list of archived posts
+select posts from user where email = '<<email of account>>';
+
+--To view Posts: 
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (<<list of pid's each seperated by comma>>) AND type = 'Post'
+AND deleted = false AND archived = true AND disabled = false ALLOW FILTERING;
+
+--To get list of archived stories
+select stories from user where email = '<<email of account>>';
+
+--To view stories
+select s_id,u_id,createdat,viewedby,viewtype,mention,location,music,link,content,pollsResponses,questionsResponses,emojisliderResponses,quizResponses,poll,
+question,eslider,quizContent from story where s_id in(<<list of sid's each seperated by comma>>) AND archived = true AND deleted = false AND disabled = false ALLOW FILTERING ;
+
+
+Temporarily Enable/Disable Account:
+use disable account function
+
+
+View activity related to my account:
+--> Choose an email of an account
+
+select * from logs where type in ('tagged','mentioned','pending','comment') and u_id = '<<email of account>>' and activityrelated = true  ALLOW FILTERING ;
+
+
+Login Activity Log:
+--> Choose an email of an account
+
+select * from logs where type = 'Login' and u_id = '<<email of account>>' and activityrelated = false  ALLOW FILTERING ;
+
+
+Switch to Professional Account:
+--> Choose an email of an account
+update user set accounttype=true , accounttype2['Business'] = false, accounttype2['Normal'] = false,accounttype2['Professional'] = true where email = '<<email of account>>';
+select requests from user where email = '<<email of account>>';
+
+NOTE : for all the uid's in requests array execute accept query (III) written in begining of document. Also here user2's will be same as here and user1's email will be from request array.
+
+
+Story Archive (Location):
+--> Choose an email of an account
+--> Copy all listed sid's 
+--> Paste all sid's seperated by comma in given space
+
+--To get list of archived stories
+select stories from user where email = '<<email of account>>';
+
+--To view stories
+select s_id,u_id,createdat,viewedby,viewtype,mention,location,music,link,content,pollsResponses,questionsResponses,emojisliderResponses,quizResponses,poll,
+question,eslider,quizContent from story where s_id in(<<list of sid's each seperated by comma>>) AND archived = true AND deleted = false AND disabled = false 
+AND location = '<<your location>>' ALLOW FILTERING;
+
+
+View Entire History of Account:
+--> Choose an email of an account
+
+select * from logs where u_id = '<<email of account>>' and activityrelated = false ALLOW FILTERING;
+
+
+Delete Comment:
+--> Choose id of a comment
+
+delete from comment where comment_id = <<selected comment_id>>;
+
+
+Comments’ features:
+--> Choose an email of an account
+
+--To block a particular user from commenting
+update user set blockuserfromcomment = blockuserfromcomment + ['<<email of account you want to block>>'] where email = '<<email of account>>';
+
+--To check for offensive words in comment
+update user set checkcomment = true where email = '<<email of account>>';
+
+-- To add custom offensive filtering words to check
+update user set offensivewords = offensivewords + ['<<list of words seperated by comma in quotes>>'] where email = '<<email of account>>';
+
+--To update who can comment on Post 
+-- Modify the boolean of the required option true and set rest boolean's to false
+update user set allowCommentFrom['everyone'] = True ,allowCommentFrom ['followers'] = True, allowCommentFrom['following'] = True, allowCommentFrom['followingFollowers'] = True where email = '<<email of account>>';
+
+
+View and manage Search History:
+Note: The data to be inserted in search history is provided by frontend.
+
+--To insert into search history
+update user set searchHistory = searchHistory + ['<<searched content>>'] where email = '<<email of account>>';
+
+--To remove from search history
+update user set searchHistory = searchHistory - ['<<searched content>>'] where email = '<<email of account>>';
+
+--To get the entire search history 
+select searchHistory from user where email = '<<email of account>>';
+
+
+View and manage Recently Deleted Posts:
+--> Choose an email of an account
+--> Copy all listed pid's
+--> Paste all pid's seperated by comma in given space
+
+--To view recently deleted posts:
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where u_id = '<<email of account>>' AND type = 'Post'
+AND deleted = true AND archived = false AND disabled = false ALLOW FILTERING;
+
+--To restore deleted post
+BEGIN BATCH
+update post set deleted = false where p_id = <<pid of post you want to restore>>;
+update user set posts = posts + [<<pid of post you want to restore>>] where email = '<<email of account>>';
+APPLY BATCH;
+
+
+Edit Posts:
+--> Choose a pid of post
+--> Keep only those columns that you want to Update
+Also note that here remove the fields that you don't want to update and don't pass empty objects/arrays that will result into malfunction of database
+Example : Suppose you update caption,tagged and hashtags for pid1 then you need to execute following  query
+            update post set caption = 'new caption',tagged= {'email1' : true,'email2':true},hashtags = hashTags + ['#newhashtag1','newhashtag2'], 
+            modifiedat = toTimestamp(now()) where p_id = pid1;
+
+update post set caption = '<<new value>>',title = '<<new value>>', tagged= tagged + {'<<new value/values>>'}, location = '<<new value>>',
+hashtags = hashtags + ['<<new value/values>>'], modifiedat = toTimestamp(now()) where p_id = <<pid of post you want to update>>;
+
+
+Remove Follower: User1 removes User2
+--> Choose user1 and user2 email 
+
+BEGIN BATCH
+update user set following = following - ['<<email of user 1>>'] where email = '<<email of user 2>>';
+update user set followers = followers - ['<<email of user 2>>'] where email = '<<email of user 1>>';
+APPLY BATCH;
+
+
+Hide/Unhide Like and View Counts:
+--> This setting will be applied to all posts from that account
+--> Choose an email of an account
+--To hide
+update user set likeviewcount = false where email = '<<email of account>>';
+--To Unhide
+update user set likeviewcount = true where email = '<<email of account>>';
+
+
+Hide/Unhide Likes and Views count from a post:
+--> This setting will be applied to a selected post from that account
+--> Choose a pid of post
+--To hide
+update post set count = false where p_id = <<pid of selected post>>;
+--To Unhide
+update post set count = true where p_id = <<pid of selected post>>;
+
+
+Allow tags from:
+--> Choose an email of an account
+--> Update the boolean of required type to true and make rest booleans false
+
+update user set allowtagsfrom['All'] = true , allowtagsfrom['following'] = true , allowtagsfrom['none'] = false where email = '<<email of account>>';
+
+
+Hide story from particular user(s): User1 hides from User2:
+--> Choose user1 and user2 email 
+
+update user set hidestory = hidestory + ['<<user2 email>>'] where email = '<<user1 email>>';
+
+
+Remove Tag: User1 removes tag from User2’s post:
+--> Choose an email of an account
+--> Choose a pid of post from which you want to remove tag
+
+--To view all posts of an account:
+select taggedIn from user where email = '<<email of account>>';
+
+BEGIN BATCH
+update user set taggedIn = taggedIn - [<<pid of selected post>>] where email = '<<email of account>>';
+update post set tagged = tagged - {'<<email of account>>'} where  p_id = <<pid of selected post>>;
+APPLY BATCH;
+
+
+Allow @Mentions From:
+Note: Here we need to check this field from user table whenever some other user mentions this user, i.e at time of insertion of story,post but this can't be implemented in shell
+--> Choose an email of an account
+--> Update the boolean of required type to true and make rest booleans false
+
+update user set allowatmention['All'] = false, allowatmention['none'] = true, allowatmention['following'] = false  where email = '<<selected email>>';
+
+
+Check Allow @Mentions From:
+--> Choose an email of an account
+select allowatmention from user where email = '<<selected email>>';
+
+
+Close Friends: User1 adds/removes User2 to close friends
+--> Choose user1 and user2 email 
+
+--To add user to close friends
+update user set closefriends = closefriends + ['<<user2 email>>'] where email = '<<user1 email>>';
+
+--To remove user from close friends
+update user set closefriends = closefriends - ['<<user2 email>>'] where email = '<<user1 email>>';
+
+
+Allow Replies and Reactions on stories:
+--> Choose an email of an account
+--> Update the boolean of required type to true and make rest booleans false
+
+update user set allowreplyreaction['All'] = true, allowreplyreaction['following'] = false, allowreplyreaction['none'] = false where email = '<<selected email>>';
+
+
+Manage Notifications:
+--> Choose an email of an account
+--> Choose email of account you want to turn up notification 
+--> Suppose user1 wants to turn posts notification for all posts posted by user2 than <<selected account for notification>> = user2's email and <<your accounts' email>> = user1's email
+--> Here whenever user2 uploads a story user1 should get notification from app. Similar should be the case with post,reels etc.
+
+--To get notifications of a User when he/she uploads Post
+update manageNotification set posts = posts + ['<<your accounts' email>>'] where email = '<<selected account for notification>>';
+
+--To get notifications of a User when he/she uploads Story
+update manageNotification set stories = stories + ['<<your accounts' email>>'] where email = '<<selected account for notification>>';
+
+--To get notifications of a User when he/she uploads IGTV
+update manageNotification set igtv = igtv + ['<<your accounts' email>>'] where email = '<<selected account for notification>>';
+
+
+--To get notifications of a User when he/she uploads Reels
+update manageNotification set reels = reels + ['<<your accounts' email>>'] where email = '<<selected account for notification>>';
+
+--To get notifications of a User when he/she uploads Live Videos
+update manageNotification set livevideos = livevideos + ['<<your accounts' email>>'] where email = '<<selected account for notification>>';
+
+
+View Insights(Professional/Business Account):
+--> Choose an email of an account
+
+--To view insights of story
+-- Select a sid from your account
+select stories from user where email = '<<email of account>>';
+--To view inisghts
+--For more than one sid write every sid seperated by comma
+select profileVisits,impressions,follows,forward,exitted,next from StoryStats where s_id in (<<list of sids>>);   
+
+--To view insights of post
+-- Select a pid from your account
+select posts from user where email = '<<email of account>>';
+--To view inisghts
+--For more than one sid write every sid seperated by comma
+select  profileVisits,follows,impressions from PostStats where p_id in (<<list of pids>>);
+
+
+Mute stories: User1 mutes User2’s stories
+--> Choose an email of two different account
+
+update user set muteStories = muteStories + ['<<user2 email>>'] where email = '<<user1 email>>';
+
+
+Mute posts: User1 mutes User2’s stories
+--> Choose an email of two different account
+
+update user set mutePosts = mutePosts + ['<<user2 email>>'] where email = '<<user1 email>>';
+
+
+Add a story(old/current) to highlights:
+--> Choose an email of an account
+
+-- Select a sid\sid's from your account
+select stories from user where email = '<<email of account>>';
+
+--> To add more than one story list sid seperated by comma
+insert into collection (id,email,collectionname,p_id,type) values (now(),'<<email of account>>','<<Name of collection>>',[<<list of sid's>>],'highlights');
+
+
+Restrict/Unrestrict Account: User1 restricts/unrestricts User2
+--> Choose an email of two different account
+--> To restrict/unrestrict more than one account list their email in '' seperated by comma 'email1','email2'...
+
+--To restrict 
+update user set  restrictAccounts = restrictAccounts + ['<<user2 email>>'] where email = '<<user1 email>>';
+
+--To unrestrict
+update user set  restrictAccounts = restrictAccounts - ['<<user2 email>>'] where email = '<<user1 email>>';
+
+
+Reaction on a story:
+--Select a sid of a story to react
+
+Polls : 
+--To react to some one story in polls section:
+--Based on the reaction option 1 or 2 add true or false
+
+BEGIN BATCH
+update story set pollsResponses = pollsResponses + {'<<your email>>': true/false} where s_id = <<selected sid>>;
+update story set viewedby = viewedby + ['<<your email>>'] where s_id = <<selected sid>>;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('<<your email>>',toTimestamp(now()),'poll',false,'story');
+APPLY BATCH; 
+
+Questions : 
+--To react to some one story in question section:
+
+BEGIN BATCH
+update story set questionsResponses = questionsResponses + {'<<your email >>': '<<your question>>'} where s_id = <<selected sid>>;
+update story set viewedby = viewedby + ['<<your email>>'] where s_id = <<selected sid>>;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('<<your email>>',toTimestamp(now()),'question',false,'story');
+APPLY BATCH;
+
+Emoji Slider:
+--To react to some one story in emoji slider section:
+-- enter the value from 1 to 100 in place of intvalue
+
+BEGIN BATCH
+update story set EmojiSliderResponses = EmojiSliderResponses + {'<<your email>>': intvalue} where s_id = <<selected sid>>;
+update story set viewedby = viewedby + ['<<your email>>'] where s_id = <<selected sid>>;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('<<your email>>',toTimestamp(now()),'emoji',false,'story');
+APPLY BATCH;
+
+Quiz : 
+--To react to some one story in quiz section:
+
+BEGIN BATCH
+update story set quizResponses = quizResponses + {'<<your email >>':'<<your answer>>'} where s_id = <<selected sid>>;
+update story set viewedby = viewedby + ['<<your email>>'] where s_id = <<selected sid>>;
+insert into logs (u_id,createdat,value,activityrelated,type) values ('<<your email>>',toTimestamp(now()),'quiz',false,'story');
+APPLY BATCH;
+
+
+See who and how many saw my story:
+Note: Here the value in viewedby filed will be inserted by Application and query for that will be:
+    update story set viewedby = viewedby + ['<<list of emails who viewed the story>>'] where s_id = <<sid of story>>;
+--> Choose an email account
+
+--To select a sid from your account
+select stories from user where email = '<<email of account>>';
+--To view
+select viewedby from story where s_id = <<sid of your story>>;
+
+
+Hide/Unhide a post you’re tagged in from the tagged posts section on “My Profile page”:
+--Hide
+update user set taggedIn = taggedIn - [<<pid of post you want to hide>>] where email = '<<your email>>';
+
+--Unhide
+update user set taggedIn = taggedIn + [<<pid of post you want to add>>] where email = '<<your email>>';
+
+
+View comment/post liked by:
+
+--Comment
+select likedBy from comment where comment_id = <<comment_id of selected comment>>;
+
+--Post
+select likedBy from post where p_id = <<pid of selected post>>;
+
+
+View all posts with a hashtag:
+select p_id from hashtag where hashtag = '<<selected hashtag>>';
+--To view a posts:
+select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (<<list of your selected post id>>)  AND type = 'Post'
+AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
+
+
+Add/remove a post to/from a guide:
+--> Choose an email of account
+--> To add/remove more than one pid write every pid seperated by comma ex : pid1,pid2...
+
+--To add a Post
+update collection set p_id = p_id + [<<pid of post you want to add>>] where id = '<<email of account>>'; 
+
+--To remove Post
+update collection set p_id = p_id - [<<pid of post you want to add>>] where id  = '<<email of account>>';
+
+
+Remove IGTV/Reel from profile grid:
+update user set hidefromprofilegrid = hidefromprofilegrid + [<<pid of IGTV/REEL you want to remove>>] where email = '<<your email>>';
+
+
+Delete Account:
+--> Choose an email of account you want to delete
+
+BATCH BEGIN
+update user set account = false where email = '<<selected email>>';
+insert into deleteAccount (id) values ('<<selected email>>');
+APPLY BATCH;
+
+Manually Approved Tags: using insert function in post
+
+--If accepted
+BEGIN BATCH
+update user set taggedIn = taggedIn + [<<pid of selected post>>], toConfirmtag = toConfirmtag - [<<pid of selected post>>] where email ='<<selected email>>';
+update post set tagged = tagged + ['<<selected email>>'] where p_id = '<<pid of selected post>>';
+APPLY BATCH;
+
+--If declined
+update user set toConfirmtag = toConfirmtag - [<<pid of selected post>>] where email = '<<selected email>>';
+
+--If hide
+BEGIN BATCH
+update user set  toConfirmtag = toConfirmtag - [<<pid of selected post>>] where email ='<<selected email >>';
+update post set tagged = tagged + ['<<selected post>>'] where p_id = <<pid of selected post>>;
+APPLY BATCH;
+
+
+LiveVideo:
+Here, when the live video is ended by the user then the application checks for the liveArchive boolean in user table for that user, if that boolean is false then the live
+video is discarded and if that boolean is true then live video is inserted to the live video table and query for that is given below
+
+insert into livevideos (id,video,createdat,u_id) values (now(),'<<link of the third party video saver>>',toTimestamp(now()),'<<email of the account>>');
+
+
+Search fullname, username, place and hashtag:
+
+--To search hashtag:
+select hashtag from hashtag where hashtag = '<<hashtag you want to search>>';
+
+--To search fullname or username:
+select email from user where username = '<search value>>';
+select email from user where fullname = '<<search value>>' ALLOW FILTERING;
+select p_id from post where location = '<<search value>>';
