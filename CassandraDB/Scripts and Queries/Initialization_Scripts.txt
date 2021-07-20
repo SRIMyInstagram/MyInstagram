@@ -7,6 +7,10 @@ CREATE KEYSPACE instagram
     WITH replication = {'class': 'SimpleStrategy', 'replication_factor' : 3};
 
 ==========================================================================================
+Script to navigate to instagram Keyspace
+==========================================================================================
+use instagram; (NOTE: You need to run all commands after switching to instagram keyspace.
+==========================================================================================
 Script to create User Table
 ==========================================================================================
 

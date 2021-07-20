@@ -1,3 +1,6 @@
+*Run all the queries in 'instagram' keyspace.
+-Command to navigate is 
+	use instagram;
 *Note : Replace the entire string between single quotes
 Example: select username from user where username = '<<your username>>' ==> select username from user where username = 'johnWalker';
 Here incase if you don't want to give that information you can just pass empty string like this ==> ''
