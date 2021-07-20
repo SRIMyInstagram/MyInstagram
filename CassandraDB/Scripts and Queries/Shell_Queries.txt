@@ -5,7 +5,8 @@
 Example: select username from user where username = '<<your username>>' ==> select username from user where username = 'johnWalker';
 Here incase if you don't want to give that information you can just pass empty string like this ==> ''
 Also in case of arrays you can pass empty array like this : [] or in case of map empty map like this : {}
- 
+
+--> Here we have used third party services like AWS,firebase to save images/videos in posts,stories and user.  
 
 Insert into user table:
 --> Replace <<your username>>, .... and other such <<>> with your values
@@ -19,6 +20,7 @@ allowTagsFrom,likeViewCount,allowCommentFrom,checkComment,allowAtMention,allowTo
 
 
 Insert Post:
+*NOTE: Here the link for the picture/video will be provided by the UI by co-ordinating with third party services
 --> To insert a post/reel/igtv first goto : https://www.uuidgenerator.net/ and increament counter to 1 and click on generate, a uuid of type 1, 
 it should look like this ex : 71bd70c0-e59f-11eb-ba80-0242ac130004
 --> Now in place of pid use this uuid to insert post
@@ -32,40 +34,41 @@ it should look like this ex : 71bd70c0-e59f-11eb-ba80-0242ac130004
         insert into hashtag (hashtag,p_id) values ('<<your hashtag>>',[<<uuid generated from site>>]);
     
 BEGIN BATCH
-insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values 
+insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled,content) values 
 (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),toTimestamp(now()),'<<your caption>>', '<<your location>>', {'email1':true,'email2' : true} ,
-'<<your type of content Post/IGTv/REELS>>',['<<list of hashtags>>'],false,true,false,true,'<<your title>>',now(),false);
+'<<your type of content Post/IGTv/REELS>>',['<<list of hashtags>>'],false,true,false,true,'<<your title>>',now(),false,['<<list of link of image/video>>']);
 update user set posts = posts + [<<pid that you generated>>] where email = '<<your email>>'
 APPLY BATCH;
 update userCount set postCount = postCount + 1 where email = '<<your email>>';
 
 For Example:
 BEGIN BATCH
-insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values (78f738f6-e5a1-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),toTimestamp(now()),'test caption 5', 'test location 5', {'email1':true,'email2' : true} ,'Post',['#hashtag1','#hashtag2'],false,true,false,true,'test title 5',now(),false);
+insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled,content) values (78f738f6-e5a1-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),toTimestamp(now()),'test caption 5', 'test location 5', {'email1':true,'email2' : true} ,'Post',['#hashtag1','#hashtag2'],false,true,false,true,'test title 5',now(),false,['link of image1','link of image 2','link of video']);
 update user set posts = posts + [78f738f6-e5a1-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
 APPLY BATCH;
 
 
 Insert Story:
+*NOTE: Here the link for the picture/video will be provided by the UI by co-ordinating with third party services
 --> To insert a story first goto : https://www.uuidgenerator.net/ and increament counter to 1 and click on generate, a uuid of type 1, 
 it should look like this ex : 71bd70c0-e59f-11eb-ba80-0242ac130004
 --> Now in place of sid use this uuid to insert story
 
 BEGIN BATCH
-insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),'<<Type of story view to All/Closefriends>>',['@username1','@username2','',...],'<<your location>>',false,'<<name of music>>','<<link of product>>',false,false,['<<question for poll>>','<<first option>>','<<second option>>'],'<<question you want to ask>>','<<text for Emoji slider>>',['<<question for quiz>>','<<option 1>>','<<option 2>>',...]);
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent,content) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),'<<Type of story view to All/Closefriends>>',['@username1','@username2','',...],'<<your location>>',false,'<<name of music>>','<<link of product>>',false,false,['<<question for poll>>','<<first option>>','<<second option>>'],'<<question you want to ask>>','<<text for Emoji slider>>',['<<question for quiz>>','<<option 1>>','<<option 2>>',...],'link of image/video');
 update user set stories = stories + [<<uuid generated from site>>] where email = '<<your email>>';
 update user using ttl 86400 set recentstory = recentstory + [<<uuid generated from site>>] where email = '<<your email>>';
 APPLY BATCH;
 
 For Example:
 I) BEGIN BATCH
-insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (01acd190-e612-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'CloseFriends',[],'Winterfell',false,'GOT theme','',false,false,[],'Ask me anything about Winterfell ?','how much Cersi Lanister enjoyed in Winterfell ?',[]);
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent,content) values (01acd190-e612-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'CloseFriends',[],'Winterfell',false,'GOT theme','',false,false,[],'Ask me anything about Winterfell ?','how much Cersi Lanister enjoyed in Winterfell ?',[],'link of image/video');
 update user set stories = stories + [01acd190-e612-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
 update user using ttl 86400 set recentstory = recentstory + [01acd190-e612-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
 APPLY BATCH;
 
 II) BEGIN BATCH
-insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (447a8186-e610-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'All',['@mike#123','millie.B.brown'],'Test location',false,'Play Date','',false,false,['Do you like Stranger things ?','YES','NO'],'','',['What is real name of Eleven','Kristen Stewart','Emelia Clark','Millie Bobby Brown','Naomi Scott']);
+insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent,content) values (447a8186-e610-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'All',['@mike#123','millie.B.brown'],'Test location',false,'Play Date','',false,false,['Do you like Stranger things ?','YES','NO'],'','',['What is real name of Eleven','Kristen Stewart','Emelia Clark','Millie Bobby Brown','Naomi Scott'],'background image');
 update user set stories = stories + [447a8186-e610-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
 update user using ttl 86400 set recentstory = recentstory + [447a8186-e610-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
 APPLY BATCH;
@@ -771,3 +774,14 @@ select hashtag from hashtag where hashtag = '<<hashtag you want to search>>';
 select email from user where username = '<search value>>';
 select email from user where fullname = '<<search value>>' ALLOW FILTERING;
 select p_id from post where location = '<<search value>>';
+
+
+Update/Remove Profile Picture:
+--> Choose an email
+*NOTE: Here the link for the picture will be provided by the UI by co-ordinating with third party services
+
+-To update/insert profile picture
+update user set profilePicture = '<<link>>' where email = '<<email of account>>';
+
+-To remove Profile Picture:
+update user set profilePicture = '' where email = '<<email of account>>';
