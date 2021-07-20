@@ -1,22 +1,3 @@
-Insert Post:
-BEGIN BATCH
-insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values (78f738f6-e5a1-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),toTimestamp(now()),'test caption 5', 'test location 5', {'email1':true,'email2' : true} ,'Post',['#hashtag1','#hashtag2'],false,true,false,true,'test title 5',now(),false);
-update user set posts = posts + [78f738f6-e5a1-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
-APPLY BATCH;
-
-BEGIN BATCH
-insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),'<<Type of story view to All/Closefriends>>',['@username1','@username2','',...],'<<your location>>',false,'<<name of music>>','<<link of product>>',false,false,['<<question for poll>>','<<first option>>','<<second option>>'],'<<question you want to ask>>','<<text for Emoji slider>>',['<<question for quiz>>','<<option 1>>','<<option 2>>',...]);
-update user set stories = stories + [<<uuid generated from site>>] where email = '<<your email>>';
-APPLY BATCH;
-
-BEGIN BATCH
-insert into story (s_id,u_id,createdat,viewtype,mention,location,archived,music,link,deleted,disabled,poll,question,eslider,quizcontent) values (14ff993c-e63d-11eb-ba80-0242ac130004,'michealcollins@gmail.com',toTimestamp(now()),'All',[],'Winterfell',true,'GOT theme','',false,false,[],'Ask me anything about Winterfell ?','how much Cersi Lanister enjoyed in Winterfell ?',[]);
-update user set stories = stories + [14ff993c-e63d-11eb-ba80-0242ac130004] where email = 'michealcollins@gmail.com';
-APPLY BATCH;
-
-Insert Post:
-insert into post (p_id,u_id,createdAt,modifiedAt,caption,location,tagged,type,hashTags,deleted,commenting,archived,count,title,music,disabled) values (<<uuid generated from site>>,'<<your email>>',toTimestamp(now()),toTimestamp(now()),'<<your caption>>', '<<your location>>', {'email1':true,'email2' : true} ,'Post',['<<list of hashtags>>'],false,true,false,true,'<<your title>>',now(),false);
-
 Insert Comment:
 insert into comment (p_id,u_id,createdat,rComment,comment_id,commentText,owner_id,disabled,bComment) values (78f738f6-e5a1-11eb-ba80-0242ac130004
 , 'eleven11@netflix.com',toTimestamp(now()),false,now(),'Hi Mike your post is amazing','michealcollins@gmail.com',false,false);
@@ -89,16 +70,19 @@ update post set archived = true,modifiedat = toTimestamp(now()) where p_id = e7f
 APPLY BATCH;
 update userCount set postCount = postCount - 1 where email = 'michealcollins@gmail.com';
 
+--To Unarchive execute following:
 BEGIN BATCH
 update post set archived = false,modifiedat = toTimestamp(now()) where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
 APPLY BATCH;
 update userCount set postCount = postCount + 1 where email = 'michealcollins@gmail.com';
 
+--Change Password
 BEGIN BATCH
 update user set password = 'shelltrial' where email = 'michealcollins@gmail.com';
 insert into logs (u_id,createdat,value,type,activityrelated) values ('michealcollins@gmail.com',toTimestamp(now()),'password','password',false);
 APPLY BATCH;
 
+--Commenting
 update post set commenting = false,modifiedat = toTimestamp(now()) where p_id = 78f738f6-e5a1-11eb-ba80-0242ac130004;
 
 --To Change Visibility to Private
@@ -107,7 +91,7 @@ update user set accounttype = false where email = 'michealcollins@gmail.com';
 insert into logs (u_id,createdat,value,type,activityrelated) values ('michealcollins@gmail.com',toTimestamp(now()),'Private','privacy',false);
 APPLY BATCH;
 
-
+--To Change Visibility to Public
 BEGIN BATCH
 update user set accounttype = true where email = 'sanketjain123@gmail.com';
 insert into logs (u_id,createdat,value,type,activityrelated) values ('sanketjain123@gmail.com',toTimestamp(now()),'Public','privacy',false);
@@ -122,14 +106,16 @@ update user set posts = posts - [faed80e0-e59c-11eb-86e6-4ff50b69c2d0] where ema
 APPLY BATCH;
 update userCount set postCount = postCount - 1 where email = 'michealcollins@gmail.com';
 
-
+--View Saved Post:
 select savedPosts from user where email = 'eleven11@netflix.com';
 select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (78f738f6-e5a1-11eb-ba80-0242ac130004) AND type = 'Post' AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
 
+--View Posts in which you are tagged:
 select taggedIn from user where email = 'eleven11@netflix.com';
 select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (78f738f6-e5a1-11eb-ba80-0242ac130004,d05ce5a0-e59c-11eb-86e6-4ff50b69c2d0) AND type = 'Post'
 AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
 
+--View all your liked posts:
 select liked from user where email = 'eleven11@netflix.com';
 select p_id,u_id,createdat,modifiedat,caption,location,tagged,likedBy,hashtags,title,music,content from post where p_id in (78f738f6-e5a1-11eb-ba80-0242ac130004) AND type = 'Post'
 AND deleted = false AND archived = false AND disabled = false ALLOW FILTERING;
@@ -146,12 +132,15 @@ select s_id,u_id,createdat,viewedby,viewtype,mention,location,music,link,content
 question,eslider,quizContent from story where s_id in(01acd190-e612-11eb-ba80-0242ac130004, 14ff993c-e63d-11eb-ba80-0242ac130004) AND archived = true AND deleted = false AND disabled = false ALLOW FILTERING;
 
 View activity related to my account:
+
 select * from logs where type in ('tagged','mentioned','pending','comment') and u_id = 'eleven11@netflix.com' and activityrelated = true  ALLOW FILTERING ;
 
 Login Activity Log:
+
 select * from logs where type = 'login' and u_id = 'michealcollins@gmail.com' and activityrelated = false  ALLOW FILTERING ;
 
 Switch to Professional Account:
+
 update user set accounttype=true , accounttype2['Business'] = false, accounttype2['Normal'] = false,accounttype2['Professional'] = true where email = 'sanketjain123@gmail.com';
 
 select requests from user where email = 'sanketjain123@gmail.com';
@@ -169,6 +158,7 @@ select s_id,u_id,createdat,viewedby,viewtype,mention,location,music,link,content
 question,eslider,quizContent from story where s_id in(01acd190-e612-11eb-ba80-0242ac130004, 14ff993c-e63d-11eb-ba80-0242ac130004) AND archived = true AND deleted = false AND disabled = false AND location = 'Winterfell' ALLOW FILTERING;
 
 View Entire History of Account:
+
 select * from logs where u_id = 'michealcollins@gmail.com' and activityrelated = false order by createdat ALLOW FILTERING ;
 
 Comments’ features:
